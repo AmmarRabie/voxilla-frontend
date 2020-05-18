@@ -1,8 +1,23 @@
-.App {
+/* .App {
   text-align: center;
+} */
+
+
+.site-layout-content {
+  background: #fff;
+  padding: 24px;
+  min-height: 280px;
 }
 
-.App-logo {
+.logo {
+  width: 5rem;
+  height: 2rem;
+  background: transparent;
+  margin: 16px 24px 16px 0;
+  float: left;
+}
+
+/* .App-logo {
   height: 40vmin;
   pointer-events: none;
 }
@@ -35,4 +50,4 @@
   to {
     transform: rotate(360deg);
   }
-}
+} */
