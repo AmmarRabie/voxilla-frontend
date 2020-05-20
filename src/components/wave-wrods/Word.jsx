@@ -1,63 +1,47 @@
 import React, { useState } from 'react'
 import { Badge, Input, Button, Space, Col, Row, Popover, Dropdown, Menu, message } from 'antd'
-import { MinusCircleFilled, EditFilled, PlusCircleOutlined, UndoOutlined, SearchOutlined, LoadingOutlined, DownOutlined, DeleteFilled, PlaySquareOutlined, PlayCircleFilled, StopFilled, CheckCircleOutlined, CheckCircleFilled, CheckCircleTwoTone, SelectOutlined } from '@ant-design/icons'
+import { MinusCircleFilled, EditFilled, PlusCircleOutlined, UndoOutlined, SearchOutlined, LoadingOutlined, DownOutlined, DeleteFilled, PlaySquareOutlined, PlayCircleFilled, StopFilled, CheckCircleOutlined, CheckCircleFilled, CheckCircleTwoTone, SelectOutlined, EditOutlined } from '@ant-design/icons'
 import { gray } from 'color-name'
 import { InsideLoading } from 'components/inside-loading'
 
 const Word = ({
-    startText = "",
+    word,
     selectionMode = "none", // select mode used to select more than word and delete them all (from wordList). one of "none", "selected", "not-selected"
     canPlay = true, // canPlay
     selectable = true, // enable or disable the selection action
+    loading = false,
     playingProgress = 0, // the progress of playing, this can be used to make more awesome styles. If 0 means stopped
-    onDeleteWord,
-    onAddLeft,
-    onAddRight,
-    onEdited,
-    onSelect,
+    onActionRequest // pass a string of "edited", "add-right", "add-left", "edit", "select", "play", "stop" or "delete"
 }) => {
 
 
     // states
     const [focus, setFocus] = useState(false)
     const [actionsVisible, setActionsVisible] = useState(false)
-    const [editMode, setEditMode] = useState(false)
-    const [synthesizedText, setSynthesizedText] = useState(startText)
+    const [synthesizedText, setSynthesizedText] = useState(word.word)
     const [currentText, setCurrentText] = useState(synthesizedText)
-    const [loading, setLoading] = useState(false)
+    // const [loading, setLoading] = useState(false)
     const [status, setStatus] = useState("synthesized") // one of "synthesized", "changed" ("selected" is now determined from isSelected)
 
     // helpers
-    const [onDeleteWordO, onAddLeftO, onAddRightO, onEditedO] = getOptionalCallback(onDeleteWord, onAddLeft, onAddRight, onEdited)
-    const isPlaying = playingProgress <= 0
+    const [onActionRequestO] = getOptionalCallback(onActionRequest)
+    const isPlaying = playingProgress > 0
     const isSelected = selectionMode === "selected"
+    const startText = word.startText
 
 
     // callbacks
     const submit = (e) => {
 
         const { value } = e.target
-        if (value === '') {
-            onDeleteWordO()
+        if (value === '') { // TODO compare with striped value
+            onActionRequestO({ type: "delete" })
             return
         }
         console.log("enter", value);
-        setLoading(true)
-
-        setTimeout((src = "audio/vocals30.mp3") => {
-            setLoading(false)
-            if (true) { // mimic the return status of the server
-                onEditedO(src) // feedback the wav data
-                setSynthesizedText(value)
-                setCurrentText(value)
-                setStatus("synthesized")
-            }
-            else {
-                // server error, or can't synthesis the value
-                setStatus("error")
-            }
-        }, 1000)
-        setEditMode(false)
+        let nw = word
+        nw.word = value
+        onActionRequestO({ type: "edited", value: nw })
     }
 
     const undoing = () => {
@@ -77,13 +61,8 @@ const Word = ({
     }
 
     const handleMenuActions = (e) => {
-        switch (e.key) {
-            case "delete":
-                onDeleteWordO()
-                break;
-            default:
-                message.info("another action clicked");
-        }
+        if (e.key !== "play" && e.key !== "stop") setActionsVisible(false)
+        onActionRequestO({ type: e.key })
     }
 
     const UndoButton = props => (
@@ -91,45 +70,17 @@ const Word = ({
     )
 
 
-    // sub-components
-    const withBadge = () => (<Badge count={focus && !editMode ? <Button onClick={() => setEditMode(true)} size={"small"} shape="circle" icon={<EditFilled style={{ color: '#f5222d' }} />} hidden={!focus}></Button> : ""}>
-        {/* <Input onPressEnter={submit}></Input> */}
-        {editMode || <Button block>{synthesizedText}</Button>}
-        {editMode && <Input onPressEnter={submit} defaultValue={synthesizedText} />}
-    </Badge>)
-
-    const EditableWord = () => (
-        <Input placeholder="New word"
-            disabled={loading || isSelected}
-            value={currentText}
-            prefix={<UndoButton onClick={undoing} />}
-            addonAfter={loading ? <LoadingOutlined /> : ""}
-            onPressEnter={submit}
-            onChange={typing}
-        />
-    )
-    // return (
-    //     <span onMouseOver={() => setFocus(true)} onMouseLeave={() => setFocus(false)}>
-    //         <Space >
-    //             <AddWordButton onClick={onAddLeftO} hidden={!focus} />
-    //             {/* {withBadge()} */}
-    //             {/* <Badge count={(focus && !editMode) && <EditBadgeCount onClick={() => setEditMode(true)} hidden={!focus} />}> */}
-    //                 {/* <Input onPressEnter={submit}></Input> */}
-    //                 {/* {editMode || <Button block>{synthesizedText}</Button>}
-    //                 {editMode && <Input onPressEnter={submit} defaultValue={synthesizedText} />} */}
-    //             {/* </Badge> */}
-    //             <EditableWord />
-    //             <AddWordButton onClick={onAddRightO} hidden={!focus} />
-    //         </Space>
-    //     </span >
-    // );
 
     const menu = (
         <Menu onClick={handleMenuActions}>
-            <Menu.Item icon={<PlayCircleFilled />} disabled={!canPlay} key="play">
+            <Menu.Item icon={<EditOutlined />} disabled={!canPlay} key="edit">
+                Edit separately
+            </Menu.Item>
+            <Menu.Divider />
+            <Menu.Item icon={<PlayCircleFilled />} disabled={!canPlay || isPlaying} key="play">
                 Play
             </Menu.Item>
-            <Menu.Item icon={<StopFilled />} disabled={playingProgress <= 0} key="stop">
+            <Menu.Item icon={<StopFilled />} disabled={!isPlaying} key="stop">
                 Stop
             </Menu.Item>
             <Menu.Divider />
@@ -153,7 +104,7 @@ const Word = ({
     return (
         <span onMouseOver={() => setFocus(true)} onMouseLeave={() => setFocus(false)}>
             <Space >
-                <AddWordButton onClick={onAddLeftO} hidden={!showAddButtons} />
+                <Button size={"small"} shape="circle" icon={<PlusCircleOutlined />} onClick={() => onActionRequestO({ type: "add-left" })} hidden={!showAddButtons} />
                 {/* <Popover content={menu} title="title" >
                     <Input placeholder="New word"
                         disabled={loading || isSelected}
@@ -164,7 +115,7 @@ const Word = ({
                         onChange={typing}
                     />
                 </Popover > */}
-                <InsideLoading progress={playingProgress}>
+                <InsideLoading onContextMenu={(e) => { e.preventDefault(); setActionsVisible(true) }} progress={playingProgress}>
                     <Dropdown disabled={loading || isSelected} overlay={menu} trigger="contextMenu" visible={actionsVisible} onVisibleChange={setActionsVisible}>
                         <Input placeholder="New word"
                             // disabled={loading || isSelected}
@@ -177,21 +128,9 @@ const Word = ({
                         />
                     </Dropdown>
                 </InsideLoading>
-                <AddWordButton onClick={onAddRightO} hidden={!showAddButtons} />
+                <Button size={"small"} shape="circle" icon={<PlusCircleOutlined />} onClick={() => onActionRequestO({ type: "add-right" })} hidden={!showAddButtons} />
             </Space>
         </span >
-    )
-}
-
-
-
-const EditBadgeCount = props => (
-    !props.hidden ? <Button size={"small"} shape="circle" icon={<EditFilled style={{ color: '#f5222d' }} />} {...props} /> : null
-)
-
-const AddWordButton = (props) => {
-    return (
-        <Button size={"small"} shape="circle" icon={<PlusCircleOutlined />} {...props} />
     )
 }
 

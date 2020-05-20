@@ -1,12 +1,12 @@
 import React from 'react'
 
 
-export const InsideLoading = ({ children, color, progress, opacity }) => {
+export const InsideLoading = ({ children, color, progress, opacity, onContextMenu }) => {
     opacity = opacity || 10
     progress = progress || 0
     color = color || "gray"
     return (
-        <div style={{ margin: 0, position: "relative" }}>
+        <div onContextMenu={onContextMenu} style={{ margin: 0, position: "relative" }}>
             {children}
             <div style={{
                 position: 'absolute',
