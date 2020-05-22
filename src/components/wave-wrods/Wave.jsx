@@ -1,36 +1,38 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { drawFreqBars, drawPosition } from './renderer';
 import './styles.css';
-// TODO: use the useContext for analayser and audioContext
-import { getContext, loadAudioBuffer, splitBuffer, playSource, splitIntoTaps, extractWithBuffers, playAudioBuffer } from './utils';
-import {drawFreqBars} from './renderer'
 
 export const Wave = ({
     spaceBetweenBars = 1,
-    width=1024,
-    height=100,
-    tape
-    }) => {
-    const [progress, setProgress] = useState(0)
+    width = 1024,
+    height = 100,
+    clip,
+    playingProgress = -1 // don't draw
+}) => {
+    //// const [previousPositionData, setPreviousPositionData] = useState(null)
     const freqСanvas = useRef(null)
-    // const [player, setPlayer] = await usePlayer()
-    const [audionState, setAudionState] = useState({
-        startedAt: null,
-        pausedAt: null,
-        isPause: true,
-        duration: 0,
-    })
+    const posСanvas = useRef(null)
 
     useEffect(() => {
         // re-render the tape
         render()
-    }, [tape])
+    }, [clip])
+
+    useEffect(() => {
+        // re-render the position
+        const posPixel = playingProgress / 100 * freqСanvas.current.width
+        drawPosition(posСanvas.current, posPixel)
+        //// drawPosition(freqСanvas.current, posPixel)
+        //// const oldData = drawPosition(freqСanvas.current, posPixel, undefined, previousPositionData)
+        //// setPreviousPositionData(oldData)
+    }, [playingProgress])
 
     const render = () => {
-        if(!tape) return
+        if (!clip) return
         // console.log("rendering2", tape, JSON.parse(JSON.stringify(tape.buffer)));
-        window.tt = tape
-        if(!tape.buffer) return
-        
+        window.tt = clip
+        if (!clip.buffer) return
+
         const styles = {
             fillStyle: 'rgb(250, 250, 250)', // background
             strokeStyle: 'rgb(251, 89, 17)', // line color
@@ -39,13 +41,22 @@ export const Wave = ({
             spaceBetweenBars: spaceBetweenBars
         }
         const canvas = freqСanvas.current
-        console.log("rendering..........", tape);
-        drawFreqBars(tape.buffer.getChannelData(0), canvas, styles)
+        console.log("rendering..........", clip);
+        drawFreqBars(clip.buffer.getChannelData(0), canvas, styles)
     }
     return (
-        // <span>
-        //     <button onClick={render}> re-render </button>
-        // </span>
-        <canvas ref={freqСanvas} width={width} height={height}/>
+        <div style={{ margin: 0, position: "relative" }}>
+            <canvas ref={freqСanvas} width={width} height={height} />
+            <canvas ref={posСanvas} width={width} height={height}
+                style={{
+                    position: 'absolute',
+                    width: width,
+                    height: "100%",
+                    left: 0,
+                    top: 0,
+                    zIndex: 5,
+                }} />
+        </div>
+
     );
 }
