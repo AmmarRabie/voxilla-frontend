@@ -8,6 +8,8 @@ const Word = ({
     word,
     selectionMode = "none", // select mode used to select more than word and delete them all (from wordList). one of "none", "selected", "not-selected"
     canPlay = true, // canPlay
+    canAdd = true,
+    canEdit = true,
     selectable = true, // enable or disable the selection action
     loading = false,
     playingProgress = 0, // the progress of playing, this can be used to make more awesome styles. If 0 means stopped
@@ -50,6 +52,7 @@ const Word = ({
     }
 
     const typing = (e) => {
+        if (!canEdit) return
         const { value } = e.target
         console.log("typing callback triggered with value ", value);
         if (value === synthesizedText) {
@@ -99,7 +102,7 @@ const Word = ({
     // render logic
     const statusColor = synthesizedText === startText ? "gray" : "#52c41a" // new ones vs old ones colors
     const statusTitle = synthesizedText === startText ? "old word" : "new edited word" // new ones vs old ones colors
-    const showAddButtons = focus && selectionMode === "none"
+    const showAddButtons = canAdd && focus && selectionMode === "none"
 
     return (
         <span onMouseOver={() => setFocus(true)} onMouseLeave={() => setFocus(false)}>
