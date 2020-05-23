@@ -76,14 +76,14 @@ const Word = ({
 
     const menu = (
         <Menu onClick={handleMenuActions}>
-            <Menu.Item icon={<EditOutlined />} disabled={!canPlay} key="edit">
+            <Menu.Item icon={<EditOutlined />} key="edit">
                 Edit separately
             </Menu.Item>
             <Menu.Divider />
             <Menu.Item icon={<PlayCircleFilled />} disabled={!canPlay || isPlaying} key="play">
                 Play
             </Menu.Item>
-            <Menu.Item icon={<StopFilled />} disabled={!isPlaying} key="stop">
+            <Menu.Item icon={<StopFilled />} disabled={!canPlay || !isPlaying} key="stop">
                 Stop
             </Menu.Item>
             <Menu.Divider />
