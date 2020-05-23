@@ -1,33 +1,12 @@
 import Axios from "axios";
-import fs from "fs"
-import Ciseaux from 'ciseaux/browser'
+import Ciseaux from 'ciseaux/browser';
 
-// TODO: rename it to WordClip, removes the tape from getter. this class should represents only hte buffer and the words
-// TODO: remove play logic from this class, transfer to playback.js in AudioPlayer
+// TODO: rename it to WordClip, removes the tape from getter. this class should represents only the buffer, duration and the words
 export class AdvancedTap { // rename to refer to the trasncription parts data (this now includes all things for the app, words and buffers)
     constructor(tape, words) {
         this.tape = tape
         this.words = words
         this.buffer = null
-    }
-
-    play(mixLast = false, start = true) {
-        if (this.source && !mixLast) {
-            try {
-                this.source.stop()
-                this.source.disconnect()
-            } catch (error) {
-
-            }
-        }
-        // create source node every time you want to play
-        this.source = Ciseaux.context.createBufferSource()
-        this.source.connect(Ciseaux.context.destination)
-        this.source.buffer = this.buffer
-
-        // start playing from begninning
-        start && this.source.start(0, 0); // TODO .then(updatePosition)
-        return this.source
     }
 
     render() {

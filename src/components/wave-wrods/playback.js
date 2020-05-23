@@ -1,5 +1,3 @@
-import { stopAllSources } from "./utils";
-
 export const AudioPlayer = (sourceOrBuffer, context) => {
     const shouldClose = !context
     const audioContext = context || new AudioContext()
@@ -25,7 +23,7 @@ export const AudioPlayer = (sourceOrBuffer, context) => {
     const stop = () => {
         handler && clearInterval(handler)
         if (startTime !== undefined)
-            stopAllSources([source])
+            stopSources(source)
         close()
     }
 
@@ -62,4 +60,12 @@ export const playBuffers = (buffers, onProgress, perc) => {
     }
     players[0].start()
     return players
+}
+
+
+export const stopSources = (...sources) => {
+    sources.forEach(source => {
+        source.stop()
+        source.onended = null
+    })
 }
