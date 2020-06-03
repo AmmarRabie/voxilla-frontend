@@ -16,6 +16,10 @@ export const AudioPlayer = (sourceOrBuffer, context) => {
             console.log("playback: ignore start of already started source...");
             return
         }
+        if (!source || !source.buffer) {
+            console.log("playback: source or its buffer is not set correctly!");
+            return
+        }
         source.start(0, 0)
         startTime = audioContext.currentTime
     }
@@ -29,6 +33,10 @@ export const AudioPlayer = (sourceOrBuffer, context) => {
 
     const onProgress = (feedback, perc = 500) => {
         // if (!source) throw Error("you should start the sound first")
+        if (!source || !source.buffer) {
+            console.log("playback: source or its buffer is not set correctly!");
+            return
+        }
         const { duration } = source.buffer
         handler = setInterval(() => {
             if (startTime === undefined) return
@@ -45,7 +53,7 @@ export const AudioPlayer = (sourceOrBuffer, context) => {
     return { start, stop, onProgress }
 }
 
-export const playBuffers = (buffers, onProgress, perc) => {
+export const playBuffers = (buffers, onProgress, perc, callbackargs) => {
     const context = new AudioContext()
     const players = buffers.map(b => AudioPlayer(b, context))
     for (let pi = 0; pi < players.length; pi++) {
@@ -55,7 +63,7 @@ export const playBuffers = (buffers, onProgress, perc) => {
                 console.log(pi, "end");
                 players[pi + 1].start()
             }
-            onProgress(pi, progress)
+            onProgress(pi, progress, callbackargs && callbackargs[pi])
         }, perc)
     }
     players[0].start()

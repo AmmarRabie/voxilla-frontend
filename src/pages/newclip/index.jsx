@@ -1,9 +1,6 @@
-import React, { Component } from 'react';
-import { Breadcrumb, PageHeader } from 'antd';
-import { WaveList } from 'components/wave-wrods/WaveList'
+import { Breadcrumb } from 'antd';
 import { WaveWords } from 'components/wave-wrods';
-import { Col, Row } from 'antd';
-import { WordList } from 'components/wave-wrods/WordList';
+import React, { Component } from 'react';
 
 
 const mockedAlignments = {

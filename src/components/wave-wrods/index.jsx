@@ -72,6 +72,7 @@ export const WaveWords = ({
                 break;
             case "edit":
                 console.log(`Word${wordIndex} requested to be edited alone`)
+                message.warn("Not supported in current version")
                 break;
             case "add-right":
             case "add-left":
@@ -103,7 +104,7 @@ export const WaveWords = ({
                     // pt = pt + step * 100 / (tapes[wordIndex].buffer.duration * 1000)
                     // progress = pt
                     // tapes[wordIndex].words = { ...tapes[wordIndex].words, progress: progress }
-                    tapes[wordIndex].progress = progress
+                    tapes[wordIndex].aloneProgress = progress
                     setTapes([...tapes])
                     setProgressDebug(progress)
                 }, step)
@@ -114,7 +115,7 @@ export const WaveWords = ({
                     playingSources[wordIndex].stop()
                     delete playingSources[wordIndex]
                     // tapes[wordIndex].words = { ...tapes[wordIndex].words, progress: 0 }
-                    tapes[wordIndex].progress = 0
+                    tapes[wordIndex].aloneProgress = 0
                     setTapes([...tapes])
                     setPlayingSources({ ...playingSources })
                 }
@@ -130,8 +131,14 @@ export const WaveWords = ({
         // setSeriesSource(playTapesInSeries(tapes))
         audioPlayers.map(p => p.stop())
         _clearProgress()
-        const players = playBuffers(tapes.map(t => t.buffer), (i, p) => {
-            tapes[i].progress = p === "end" ? 0 : p
+        // const cntx = new AudioContext()
+        // const silence = cntx.createBuffer(2, 1, cntx.sampleRate)
+        const realTapes = tapes.filter(t => t.buffer)
+        const players = playBuffers(realTapes.map(t => t.buffer), (i, p) => {
+            // TODO: consider changing the structure of the tapes. instead of array save it in a dictionary, the key is the id, and value is the tape
+            // realTapes[i].progress = p === "end" ? 0 : p
+            const realTape = realTapes[i]
+            tapes[tapes.findIndex(x => x.words.id === realTape.words.id)].progress = p === "end" ? 0 : p
             setTapes([...tapes])
         }, 30)
         setAudioPlayers(players)
@@ -154,10 +161,24 @@ export const WaveWords = ({
 
 
     // render logic
+    if (!loading && (!tapes || tapes.length <= 0)) {
+        // Empty view
+        // add a new word
+        const newWord = {
+            startText: "",
+            id: Date.now(),
+            word: ""
+        }
+        const newTape = new AdvancedTap(null, newWord)
+        setTapes([
+            newTape
+        ])
+    }
+    const someCanPlayed = tapes.some(t => t.buffer)
     return (
         <Spin size="large" spinning={loading}>
-            <Button hidden={loading} onClick={playAll}>Play all</Button>
-            <Button hidden={loading} onClick={stopAll}>Stop all</Button>
+            <Button hidden={loading || !someCanPlayed} onClick={playAll}>Play all</Button>
+            <Button hidden={loading || !someCanPlayed} onClick={stopAll}>Stop all</Button>
             <WaveList clips={tapes} />
             <WordList onWordAction={onWordAction} clips={tapes} />
             {/* <Skeleton loading={loading} /> */}

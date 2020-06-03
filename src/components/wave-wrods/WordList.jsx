@@ -44,6 +44,7 @@ export const WordList = ({
 
     // render logic
     const someInPlay = clips.some(c => c.progress > 0)
+    const someInLoading = clips.some(c => c.loading)
     return (
         <Row gutter={[6, 24]}>
             {clips.map((word, wordIndex) => (
@@ -51,9 +52,10 @@ export const WordList = ({
                     <Word key={word.words.id}
                         word={word.words}
                         loading={word.loading}
-                        playingProgress={word.progress || 0}
-                        canPlay={!someInPlay}
-                        canEdit={!someInPlay}
+                        playingProgress={word.aloneProgress || word.progress || 0}
+                        canPlay={!someInPlay && word.buffer}
+                        canStop={!someInPlay && word.buffer}
+                        canEdit={!someInPlay && !someInLoading}
                         canAdd={!someInPlay}
                         onActionRequest={(action) => _onWordAction({ wordIndex, word }, action)}
                     />

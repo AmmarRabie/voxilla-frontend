@@ -8,6 +8,7 @@ const Word = ({
     word,
     selectionMode = "none", // select mode used to select more than word and delete them all (from wordList). one of "none", "selected", "not-selected"
     canPlay = true, // canPlay
+    canStop = true, // canPlay
     canAdd = true,
     canEdit = true,
     selectable = true, // enable or disable the selection action
@@ -34,7 +35,10 @@ const Word = ({
 
     // callbacks
     const submit = (e) => {
-
+        if (!canEdit) {
+            message.info("you can't edit right now ! either loading or playing")
+            return
+        }
         const { value } = e.target
         if (value === '') { // TODO compare with striped value
             onActionRequestO({ type: "delete" })
@@ -52,7 +56,7 @@ const Word = ({
     }
 
     const typing = (e) => {
-        if (!canEdit) return
+        // if (!canEdit) return
         const { value } = e.target
         console.log("typing callback triggered with value ", value);
         if (value === synthesizedText) {
@@ -83,7 +87,7 @@ const Word = ({
             <Menu.Item icon={<PlayCircleFilled />} disabled={!canPlay || isPlaying} key="play">
                 Play
             </Menu.Item>
-            <Menu.Item icon={<StopFilled />} disabled={!canPlay || !isPlaying} key="stop">
+            <Menu.Item icon={<StopFilled />} disabled={!canStop || !isPlaying} key="stop">
                 Stop
             </Menu.Item>
             <Menu.Divider />

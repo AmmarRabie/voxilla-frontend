@@ -7,7 +7,8 @@ export const Wave = ({
     width = 1024,
     height = 100,
     clip,
-    playingProgress = -1 // don't draw
+    playingProgress = -1, // don't draw
+    index
 }) => {
     //// const [previousPositionData, setPreviousPositionData] = useState(null)
     const freqСanvas = useRef(null)
@@ -45,8 +46,16 @@ export const Wave = ({
         drawFreqBars(clip.buffer.getChannelData(0), canvas, styles)
     }
     return (
-        <div style={{ margin: 0, position: "relative" }}>
-            <canvas ref={freqСanvas} width={width} height={height} />
+        <div style={{ position: "relative", display: "inline-block", width: "512px", height: height, margin: "0px", padding: "0px", overflow: "hidden" }}>
+            <canvas ref={freqСanvas} width={width} height={height}
+                style={{
+                    position: 'absolute',
+                    width: width,
+                    height: "100%",
+                    left: 0,
+                    top: 0,
+                    zIndex: 4,
+                }} />
             <canvas ref={posСanvas} width={width} height={height}
                 style={{
                     position: 'absolute',

@@ -3,19 +3,18 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@bbc/react-transcript-editor": "^1.4.1-alpha.5",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
     "antd": "^4.2.0",
     "axios": "^0.19.2",
     "ciseaux": "^0.4.0",
+    "edit-wave-transcript": "https://github.com/AmmarRabie/edit-wave-transcript.git",
     "node-sass": "^4.14.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.4.1",
-    "waveform-playlist": "^3.2.2",
     "waveform-react": "^0.2.3"
   },
   "scripts": {
