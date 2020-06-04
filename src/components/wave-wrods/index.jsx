@@ -1,6 +1,5 @@
 import { Button, message, Spin } from 'antd';
 import React, { useDebugValue, useEffect, useState } from 'react';
-import { synthesizeText } from './mockServer';
 import { AudioPlayer, playBuffers } from './playback';
 import './styles.css';
 import { AdvancedTap, extractWithBuffers, fileToTape } from './utils';
@@ -10,7 +9,8 @@ import { WordList } from './WordList';
 
 export const WaveWords = ({
     src,
-    alignments
+    alignments,
+    synthesizeText
 }) => {
 
     // console.log("start rendering waveWords");

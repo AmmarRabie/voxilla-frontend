@@ -1,56 +1,55 @@
-import { Breadcrumb } from 'antd';
+import { UploadOutlined } from '@ant-design/icons';
+import { Breadcrumb, Button, Upload } from 'antd';
+import axios from 'axios';
 import { WaveWords } from 'components/wave-wrods';
-import React, { Component } from 'react';
+import React, { useState } from 'react';
+import reformatAlignments from './utils';
+import { synthesizeText } from './server';
 
+const NewClipPage = () => {
 
-const mockedAlignments = {
-    "words": [
-        {
-            "id": "ASR0",
-            "startText": "one", // the original word text
-            "word": "one", // what he say (as outputed from ASR)
-            "word-labeled": "1", // applying labeling.. may be the user apply it by hand but he don't want to change the wav itself
-            "start": 0,
-            "end": 2.68,
-            "confidence": 100, // the confidence or the score of the ASR
-            "style": "should be one of defined styles like 'edited', 'normal' or 'error', 'removed'"
-        },
-        {
-            "id": "ASR1",
-            "startText": "From fairest creatures we desire increase,", // the original word text
-            "word": "From fairest creatures we desire increase,",
-            "word-labeled": "1", // applying labeling.. may be the user apply it by hand but he don't want to change the wav itself
-            "start": 2.680,
-            "end": 5.880,
-            "confidence": 100,
-            "style": "should be one of defined styles like 'edited', 'normal' or 'error', 'removed'"
-        },
-        {
-            "id": "ASR2",
-            "startText": "That thereby beauty's rose might never die,",
-            "word": "That thereby beauty's rose might never die,",
-            "word-labeled": "1", // applying labeling.. may be the user apply it by hand but he don't want to change the wav itself
-            "start": 5.880,
-            "end": 9.240,
-            "confidence": 100,
-            "style": "should be one of defined styles like 'edited', 'normal' or 'error', 'removed'"
+    const [loading, setLoading] = useState(false)
+    const [alignments, setAlignments] = useState(null)
+    const [src, setSrc] = useState(null)
+    const [currentFileName, setCurrentFileName] = useState("")
+
+    const handleChange = info => {
+        if (info.file.status === 'uploading') {
+            setLoading(true);
+            return;
         }
-    ]
-}
+        if (info.file.status === 'done') {
+            const src = URL.createObjectURL(info.file.originFileObj)
+            setSrc(src)
+            axios.get("http://localhost:5000/recognition$getalignment").then(response => {
+                const alignments = { words: reformatAlignments(response.data.text) }
+                setAlignments(alignments)
+            })
+        }
+    };
+    return (
+        <div>
+            <Breadcrumb style={{ margin: '16px 0' }}>
+                <Breadcrumb.Item key="home">Home</Breadcrumb.Item>
+                <Breadcrumb.Item key="clips">My Clips</Breadcrumb.Item>
+                <Breadcrumb.Item key="cid">Clip Id</Breadcrumb.Item>
+            </Breadcrumb>
+            <Upload
+                name="file"
+                listType="text"
+                showUploadList={true}
+                action="http://localhost:5000/upload$"
 
-class NewClipPage extends Component {
-    render() {
-        return (
-            <div>
-                <Breadcrumb style={{ margin: '16px 0' }}>
-                    <Breadcrumb.Item key="home">Home</Breadcrumb.Item>
-                    <Breadcrumb.Item key="clips">My Clips</Breadcrumb.Item>
-                    <Breadcrumb.Item key="cid">Clip Id</Breadcrumb.Item>
-                </Breadcrumb>
-                <WaveWords src="audio/sonnet.mp3" alignments={mockedAlignments} />
-            </div>
-        );
-    }
+                onChange={handleChange}
+            >
+                <Button>
+                    <UploadOutlined /> Click to Upload
+                </Button>
+                {currentFileName}
+            </Upload>
+            {alignments && <WaveWords src={src} alignments={alignments} synthesizeText={synthesizeText} />}
+        </div>
+    );
 }
 
 export default NewClipPage;
