@@ -21,8 +21,10 @@ const NewClipPage = () => {
         if (info.file.status === 'done') {
             const src = URL.createObjectURL(info.file.originFileObj)
             setSrc(src)
-            axios.get("http://localhost:5000/recognition$getalignment").then(response => {
+            console.log(src)
+            axios.get("http://localhost:5000/recognition/getalignment").then(response => {
                 const alignments = { words: reformatAlignments(response.data.text) }
+                console.log(alignments)
                 setAlignments(alignments)
             })
         }
@@ -38,7 +40,7 @@ const NewClipPage = () => {
                 name="file"
                 listType="text"
                 showUploadList={true}
-                action="http://localhost:5000/upload$"
+                action="http://localhost:5000/upload"
 
                 onChange={handleChange}
             >
