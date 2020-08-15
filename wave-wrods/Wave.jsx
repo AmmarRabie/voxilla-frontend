@@ -46,7 +46,7 @@ export const Wave = ({
         drawFreqBars(clip.buffer.getChannelData(0), canvas, styles)
     }
     return (
-        <div style={{ position: "relative", display: "inline-block", width: width, height: height, margin: "0px", padding: "0px", overflow: "hidden" }}>
+        <div style={{ position: "relative", display: "inline-block", width: "512px", height: height, margin: "0px", padding: "0px", overflow: "hidden" }}>
             <canvas ref={freqСanvas} width={width} height={height}
                 style={{
                     position: 'absolute',

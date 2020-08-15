@@ -15,13 +15,12 @@ export const WaveList = ({ clips }) => {
 
     return (
         // <div>
-        clips && <div style={{ overflowX: "scroll", whiteSpace: "nowrap" }}>
+        clips && <div>
             {clips.map((clip, index) => (
                 clip.buffer && <Wave key={clip.words.id} index={index}
                     clip={clip}
                     playingProgress={clip.progress ? clip.progress : -1}
-                    width={512}
-                    deight={200} />
+                    width={512} />
             ))}
         </div>
         // </div>
