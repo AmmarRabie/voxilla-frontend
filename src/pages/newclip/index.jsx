@@ -82,7 +82,7 @@ const NewClipPage = ({ location }) => {
                     <Button hidden={!uploaded} style={{ float: "right" }} type="primary">Save Changes</Button>
                 </Space>
             </div>
-            {alignments && <WaveWords src={src} alignments={alignments} synthesizeText={synthesizeText} />}
+            {alignments && <WaveWords src={src} alignments={alignments} synthesizeText={(oldWord, newWord) => synthesizeText(utoken, clip.id, oldWord, newWord)} />}
         </div>
     );
 }
