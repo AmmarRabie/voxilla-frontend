@@ -1,5 +1,5 @@
 import { UploadOutlined } from '@ant-design/icons';
-import { Breadcrumb, Button, Upload, Space, Row, Col } from 'antd';
+import { Breadcrumb, Button, Upload, Space, Row, Col, message } from 'antd';
 import axios from 'axios';
 import { WaveWords } from 'components/wave-wrods';
 import React, { useState, useRef, useEffect } from 'react';
@@ -10,16 +10,18 @@ const NewClipPage = ({ location }) => {
 
     const { clip } = location
     const audioExist = clip && clip.fileUri
+    const alignmentsExist = clip && clip.alignments
     const utoken = sessionStorage.getItem("token")
 
     const [loading, setLoading] = useState(false)
-    const [alignments, setAlignments] = useState(null)
+    const [alignments, setAlignments] = useState(clip.alignments)
     const [src, setSrc] = useState(clip.fileUri)
     const [uploaded, setUploaded] = useState(audioExist)
-    const [currentFileName, setCurrentFileName] = useState("")
+    const [recognized, setRecognized] = useState(audioExist && alignmentsExist)
 
     const uploadBtnRef = useRef(null)
 
+    const key = "message_key" // message loading key 
 
     useEffect(() => {
         // auto click if no file exist for better user experience
@@ -35,11 +37,22 @@ const NewClipPage = ({ location }) => {
             axios.get(`http://localhost:5000/clips/${clip.id}/download`, { responseType: "arraybuffer", headers: { 'x-access-token': utoken } })
                 .then(res => setSrc(res.data))
         }
+        if (clip.fileUri && !alignmentsExist) {
+            getAlignments()
+        }
     }, [])
+
+    const saveChanges = () => {
+        
+    }
+
+    const download = () => {
+        
+    }
 
     const handleChange = info => {
         if (info.file.status === 'uploading') {
-            setLoading(true);
+            message.loading({ content: 'uploading..!', key, duration: -1 })
             return;
         }
         if (info.file.status === 'done') {
@@ -47,13 +60,20 @@ const NewClipPage = ({ location }) => {
             console.log(`handleChange setting the source with ${src}`);
             setSrc(src)
             setUploaded(true)
+            //? whether to do it auto or not
+            getAlignments()
         }
     };
     const getAlignments = () => {
+        console.log("getting alignments");
+        message.loading({ content: 'recognizing sound words!', key, duration: -1 })
         axios.get(`http://localhost:5000/clips/${clip.id}/recognize`, { headers: { 'x-access-token': utoken } }).then(response => {
             const alignments = { words: reformatAlignments(response.data.text) }
             console.log(alignments)
             setAlignments(alignments)
+            setRecognized(true)
+            // message.success({ content: 'recognized!', key, duration: 1 })
+            message.destroy()
         })
     }
 
@@ -76,10 +96,10 @@ const NewClipPage = ({ location }) => {
 
             </Upload>
 
-            <div style={{ alignContent: "right" }}>
-                <Space>
-                    <Button hidden={!uploaded} onClick={getAlignments} style={{ float: "right" }} type="default">recognize words</Button>
-                    <Button hidden={!uploaded} style={{ float: "right" }} type="primary">Save Changes</Button>
+            <div style={{ alignContent: "right", textAlign:"right" }}>
+                <Space style={{ textAlign: "right" }}>
+                    {/* <Button hidden={!uploaded || alignments != undefined} onClick={getAlignments} style={{ float: "right" }} type="default">recognize words</Button> */}
+                    <Button hidden={!uploaded} style={{ float: "right" }} type="primary" onClick={saveChanges}>Save Changes</Button>
                 </Space>
             </div>
             {alignments && <WaveWords src={src} alignments={alignments} synthesizeText={(oldWord, newWord) => synthesizeText(utoken, clip.id, oldWord, newWord)} />}

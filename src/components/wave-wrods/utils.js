@@ -94,6 +94,11 @@ export const extractWithBuffers = (src, alignments) => {
     })
 }
 
+export const merge = (tapes) => {
+    // TODO: find more suitable way as you already have the buffers, I think that they render each one alone again
+    return Ciseaux.concat(tapes.map(at => at.tape)).render()
+}
+
 export const fileToTape = (src, word) => {
     return Ciseaux.from(src).then(origTap => {
         return origTap.render().then(buffer => {

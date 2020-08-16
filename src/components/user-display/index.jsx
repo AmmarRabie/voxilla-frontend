@@ -4,13 +4,9 @@ import { DownOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons';
 import { useHistory } from 'react-router-dom'
 
 
-export const UserDisplay = ({ }) => {
+export const UserDisplay = ({ username, onLogOut }) => {
     const history = useHistory()
 
-    const logout = () => {
-        sessionStorage.removeItem("token");
-        history.replace("/login")
-    }
     const menu = (
         <Menu>
             <Menu.Item>
@@ -19,7 +15,7 @@ export const UserDisplay = ({ }) => {
                 </Button>
             </Menu.Item>
             <Menu.Item>
-                <Button icon={<LogoutOutlined />} type="link" onClick={logout}>
+                <Button icon={<LogoutOutlined />} type="link" onClick={() => { onLogOut(); history.replace("/login"); }}>
                     logout
                 </Button>
             </Menu.Item>
@@ -29,7 +25,7 @@ export const UserDisplay = ({ }) => {
     return (
         <Dropdown overlay={menu}>
             <a style={{ float: "right" }} className="ant-dropdown-link" onClick={e => e.preventDefault()}>
-                AmmarRabie <DownOutlined />
+                {username} <DownOutlined />
             </a>
         </Dropdown>
     )

@@ -1,11 +1,11 @@
-import { Button, message, Spin } from 'antd';
+import { Button, message, Spin, Space } from 'antd';
 import React, { useDebugValue, useEffect, useState } from 'react';
 import { AudioPlayer, playBuffers } from './playback';
 import './styles.css';
-import { AdvancedTap, extractWithBuffers, fileToTape } from './utils';
+import { AdvancedTap, extractWithBuffers, fileToTape, merge } from './utils';
 import { WaveList } from './WaveList';
 import { WordList } from './WordList';
-
+import fs from "fs"
 
 export const WaveWords = ({
     src,
@@ -19,6 +19,7 @@ export const WaveWords = ({
     // states
     const [tapes, setTapes] = useState([])
     const [loading, setLoading] = useState(false) // extraction of the buffers
+    const [currentFileSrc, setCurrentFileSrc] = useState(src) // extraction of the buffers
 
 
     const [progressDebug, setProgressDebug] = useState(0) // extraction of the buffers
@@ -126,7 +127,17 @@ export const WaveWords = ({
         }
     }
 
+    const download = async () => {
+        console.log(tapes);
+        const audiobuffer = await merge(tapes)
+        const channelData = audiobuffer.getChannelData(0)
+        const blob = new Blob(channelData, { type: "audio/wav" })
+        const toDownloadSrc = URL.createObjectURL(blob)
+        setCurrentFileSrc(toDownloadSrc)
+    }
+
     const playAll = () => {
+        // return download()
         // stopAllSources(seriesSources)
         // setSeriesSource(playTapesInSeries(tapes))
         audioPlayers.map(p => p.stop())
@@ -177,8 +188,11 @@ export const WaveWords = ({
     const someCanPlayed = tapes.some(t => t.buffer)
     return (
         <Spin size="large" spinning={loading}>
-            <Button hidden={loading || !someCanPlayed} onClick={playAll}>Play all</Button>
-            <Button hidden={loading || !someCanPlayed} onClick={stopAll}>Stop all</Button>
+            <Space>
+                <Button hidden={loading || !someCanPlayed} onClick={playAll}>Play all</Button>
+                <Button hidden={loading || !someCanPlayed} onClick={stopAll}>Stop all</Button>
+                <a download href={currentFileSrc} onClick={download}>Download</a>
+            </Space>
             <WaveList clips={tapes} />
             <WordList onWordAction={onWordAction} clips={tapes} />
             {/* <Skeleton loading={loading} /> */}

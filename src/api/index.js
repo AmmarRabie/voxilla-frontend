@@ -5,7 +5,7 @@ export async function login(username, password) {
     const encodedAuth = btoa(username + ":" + password)
     // try {
     const response = await axios.get("http://localhost:5000/login", { headers: { 'Authorization': `Basic ${encodedAuth}` } })
-    return response.data.token
+    return response.data
 
     // } catch (error) {
     //     console.log("errrorr", error.message)
@@ -20,7 +20,7 @@ export async function signup(username, email, password) {
     }
     // try {
     const response = await axios.post("http://localhost:5000/signup", body)
-    return response.data.token
+    return response.data
     // } catch (error) {
     //     console.log("errrorr", error.message)
     //     return error.data

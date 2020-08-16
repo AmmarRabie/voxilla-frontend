@@ -1,18 +1,23 @@
-import React, { useState } from 'react';
+import React, { useContext } from 'react';
 import { Form, Input, Button, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { signup } from 'api'
+import userContext from 'contexts/user';
+import { useHistory } from 'react-router-dom'
 
-const SignupPage = (props) => {
+
+const SignupPage = () => {
+
+    const ucontext = useContext(userContext)
+    const history = useHistory()
 
     const onFinish = async values => {
         // signup
         console.log('Received values of form: ', values);
         try {
-            const token = await signup(values.username, values.email, values.password)
-            sessionStorage.setItem("token", token)
-            console.log(`token set ${token}`);
-            props.history.push("/home")
+            const { token, username } = await signup(values.username, values.email, values.password)
+            ucontext.login(token, username)
+            history.replace("/projects")
         } catch (error) {
             console.log(error);
             message.error("email already exists")

@@ -1,19 +1,24 @@
-import React, { useState, useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Form, Input, Button, Checkbox, Alert, message } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
-import axios from 'axios';
 import { login } from 'api'
 import './style.css';
+import userContext from 'contexts/user';
+import { useHistory } from 'react-router-dom'
 
-const LoginPage = (props) => {
+const LoginPage = () => {
+
+    const ucontext = useContext(userContext)
+    const history = useHistory()
 
     const onFinish = async values => {
         console.log('Received values of form: ', values);
         try {
-            const token = await login(values.username, values.password)
-            sessionStorage.setItem("token", token)
-            console.log(`token set ${token}`);
-            props.history.push("/home")
+            const { token, username } = await login(values.username, values.password)
+            console.log(`on the login token is ${token} and user is ${username}`);
+            
+            ucontext.login(token, username)
+            history.replace("/projects")
         } catch (error) {
             console.log(error);
             message.error("Invalid credentials")
@@ -22,9 +27,10 @@ const LoginPage = (props) => {
 
 
     useEffect(() => {
-        if (sessionStorage.getItem("token")) {
-            console.log(sessionStorage.getItem("token"))
-            props.history.push("/home")
+        const existedToken = sessionStorage.getItem("token")
+        if (existedToken) {
+            ucontext.login(existedToken, sessionStorage.getItem("username"))
+            history.replace("/projects")
         }
     }, [])
 
