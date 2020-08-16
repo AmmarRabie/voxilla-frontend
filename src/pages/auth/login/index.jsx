@@ -16,7 +16,7 @@ const LoginPage = () => {
         try {
             const { token, username } = await login(values.username, values.password)
             console.log(`on the login token is ${token} and user is ${username}`);
-            
+
             ucontext.login(token, username)
             history.replace("/projects")
         } catch (error) {
@@ -36,6 +36,7 @@ const LoginPage = () => {
 
     return (
         <Form
+            style={{ marginLeft: "auto", marginRight: "auto", marginTop: "50px" }}
             name="login"
             className="login-form"
             initialValues={{

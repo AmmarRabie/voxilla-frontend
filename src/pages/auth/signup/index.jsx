@@ -26,6 +26,7 @@ const SignupPage = () => {
 
     return (
         <Form
+            style={{ marginLeft: "auto", marginRight: "auto", marginTop: "50px" }}
             name="signup"
             className="login-form"
             initialValues={{
