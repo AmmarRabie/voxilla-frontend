@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 export const synthesizeText = (token, clipId, oldWord, newWord) => {
-    return axios.post(`http://localhost:5000/clips/${clipId}/synthesize`, { text: newWord }, { headers: { "x-access-token": token, "Cache-Control": "no-store,no-cache" } }).then(res => `http://localhost:5000/download/${res.data.uri}`)
+    return axios.post(`http://localhost:5000/clips/${clipId}/synthesize`, { text: newWord }, { headers: { "x-access-token": token, "Cache-Control": "no-store,no-cache" } }).then(res => `http://localhost:5000/download/synthesized?path=${res.data.uri}`)
 }
 
 
